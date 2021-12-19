@@ -7,18 +7,12 @@ from werkzeug.utils import secure_filename
 import os 
 
 UPLOAD_FOLDER = ""
-ALLOWED_EXTENSIONS = {'mp3'}
+ALLOWED_EXTENSIONS = {'mp3', 'm4a'}
 
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-
-url_s2t = "https://api.us-south.speech-to-text.watson.cloud.ibm.com/instances/6378e690-e198-4d68-a82a-209ac3410509"
-iam_apikey_s2t = "2q8XjGHDihTDP2egxfI-33vH4JsI1L67xzYCv7sG2nh6"       
-authenticator = IAMAuthenticator(iam_apikey_s2t)
-s2t = SpeechToTextV1(authenticator=authenticator)
-s2t.set_service_url(url_s2t)
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -43,6 +37,11 @@ def upload():
 
             
             with open(filename, mode="rb") as wav:
+                url_s2t = "https://api.us-south.speech-to-text.watson.cloud.ibm.com/instances/6378e690-e198-4d68-a82a-209ac3410509"
+                iam_apikey_s2t = str(request.form["pword"])
+                authenticator = IAMAuthenticator(iam_apikey_s2t)
+                s2t = SpeechToTextV1(authenticator=authenticator)
+                s2t.set_service_url(url_s2t)
                 response = s2t.recognize(audio=wav, content_type="audio/mp3")
                 fulltext = []
                 for i in range(len(response.result['results'])):
